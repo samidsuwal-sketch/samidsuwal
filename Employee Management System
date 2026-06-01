@@ -1,0 +1,173 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_NAME_LEN 50
+#define FILE_NAME "employees.dat"
+
+typedef struct {
+    int id;
+    char name[MAX_NAME_LEN];
+    char department[MAX_NAME_LEN];
+    float salary;
+} Employee;
+
+void addEmployee();
+void displayEmployees();
+void searchEmployee();
+void deleteEmployee();
+
+int main() {
+    int choice;
+    
+    while (1) {
+        printf("\n=== Employee Management System ===\n");
+        printf("1. Add Employee\n");
+        printf("2. Display All Employees\n");
+        printf("3. Search Employee\n");
+        printf("4. Delete Employee\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            while(getchar() != '\n'); // clear input buffer
+            continue;
+        }
+        
+        switch (choice) {
+            // case 1: addEmployee(); break;
+            case 2: displayEmployees(); break;
+            case 3: searchEmployee(); break;
+            case 4: deleteEmployee(); break;
+            case 5: 
+                printf("Exiting system. Goodbye!\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void addEmployee() {
+    FILE *file = fopen(FILE_NAME, "ab"); // Append in binary mode
+    if (!file) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    Employee emp;
+    printf("Enter Employee ID: ");
+    scanf("%d", &emp.id);
+    getchar(); // Consume the newline character left by scanf
+
+    printf("Enter Name: ");
+    fgets(emp.name, MAX_NAME_LEN, stdin);
+    emp.name[strcspn(emp.name, "\n")] = 0; // Remove trailing newline
+
+    printf("Enter Department: ");
+    fgets(emp.department, MAX_NAME_LEN, stdin);
+    emp.department[strcspn(emp.department, "\n")] = 0; // Remove trailing newline
+
+    printf("Enter Salary: ");
+    scanf("%f", &emp.salary);
+
+    fwrite(&emp, sizeof(Employee), 1, file);
+    fclose(file);
+    printf("Employee added successfully.\n");
+}
+
+void displayEmployees() {
+    FILE *file = fopen(FILE_NAME, "rb"); // Read in binary mode
+    if (!file) {
+        printf("No records found! Please add an employee first.\n");
+        return;
+    }
+
+    Employee emp;
+    printf("\n%-10s %-25s %-20s %-10s\n", "ID", "Name", "Department", "Salary");
+    printf("----------------------------------------------------------------------\n");
+    
+    int count = 0;
+    while (fread(&emp, sizeof(Employee), 1, file)) {
+        printf("%-10d %-25s %-20s $%-9.2f\n", emp.id, emp.name, emp.department, emp.salary);
+        count++;
+    }
+    
+    if (count == 0) {
+        printf("No records found!\n");
+    }
+    
+    fclose(file);
+}
+
+void searchEmployee() {
+    FILE *file = fopen(FILE_NAME, "rb");
+    if (!file) {
+        printf("No records found! Please add an employee first.\n");
+        return;
+    }
+
+    int targetId, found = 0;
+    printf("Enter Employee ID to search: ");
+    scanf("%d", &targetId);
+
+    Employee emp;
+    while (fread(&emp, sizeof(Employee), 1, file)) {
+        if (emp.id == targetId) {
+            printf("\n--- Employee Found ---\n");
+            printf("ID:         %d\n", emp.id);
+            printf("Name:       %s\n", emp.name);
+            printf("Department: %s\n", emp.department);
+            printf("Salary:     $%.2f\n", emp.salary);
+            found = 1;
+            break;
+        }
+    }
+    
+    if (!found) {
+        printf("Employee with ID %d not found.\n", targetId);
+    }
+    fclose(file);
+}
+
+void deleteEmployee() {
+    FILE *file = fopen(FILE_NAME, "rb");
+    if (!file) {
+        printf("No records found! Please add an employee first.\n");
+        return;
+    }
+
+    FILE *temp = fopen("temp.dat", "wb");
+    if (!temp) {
+        printf("Error creating temporary file!\n");
+        fclose(file);
+        return;
+    }
+
+    int targetId, found = 0;
+    printf("Enter Employee ID to delete: ");
+    scanf("%d", &targetId);
+
+    Employee emp;
+    while (fread(&emp, sizeof(Employee), 1, file)) {
+        if (emp.id == targetId) {
+            found = 1; // Mark as found, do not write to the temporary file
+        } else {
+            fwrite(&emp, sizeof(Employee), 1, temp); // Write others to temporary file
+        }
+    }
+
+    fclose(file);
+    fclose(temp);
+
+    if (found) {
+        remove(FILE_NAME);
+        rename("temp.dat", FILE_NAME);
+        printf("Employee with ID %d deleted successfully.\n", targetId);
+    } else {
+        remove("temp.dat"); // Delete temp file since no change was made
+        printf("Employee with ID %d not found.\n", targetId);
+    }
+}
