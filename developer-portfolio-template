@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Portfolio | Professional Showcase</title>
+    <style>
+        /* Modern Design Tokens & Variables */
+        :root {
+            --bg-main: #0d1117;
+            --bg-card: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-success: #238636;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        /* Reset & Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header Component */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-title h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-title p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            background-color: rgba(56, 139, 253, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(56, 139, 253, 0.4);
+            padding: 0.35rem 0.75rem;
+            border-radius: 2em;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Section Layouts */
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Grid Component for Projects */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Repository / Project Card Module */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.25rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title {
+            color: var(--accent);
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .card-title:hover {
+            text-decoration: underline;
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+            height: 40px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .lang-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 0.25rem;
+        }
+
+        .dot-html { background-color: #e34c26; }
+        .dot-js { background-color: #f1e05a; }
+        .dot-py { background-color: #3572a5; }
+
+        /* Contribution Metric / Tech Stack Layout */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Action Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="profile-title">
+                <h1>Engineering Showcase</h1>
+                <p>Building high-performance, accessible web architectures.</p>
+            </div>
+            <span class="status-badge">🟢 Open for Collaborations</span>
+        </header>
+
+        <section>
+            <h2>Architectural Focus</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 750px;">
+                Specializing in semantic markup systems, modular design tokens, and optimal client-side execution. Focused on parsing high-density interfaces down into clean, performant modules.
+            </p>
+        </section>
+
+        <section>
+            <h2>Pinned Repositories</h2>
+            <div class="grid">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <a href="#" class="card-title">core-markup-engine</a>
+                    </div>
+                    <p class="card-desc">A highly-optimized structural layout boiler engine tailored for lightning-fast DOM parsing and structural indexing.</p>
+                    <div class="card-meta">
+                        <span><span class="lang-dot dot-html"></span>HTML5</span>
+                        <span>⭐ 142</span>
+                        <span>Updated recently</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <a href="#" class="card-title">async-data-hydrator</a>
+                    </div>
+                    <p class="card-desc">Asynchronous document tree structure formatting engine designed for rapid rendering and state hydration.</p>
+                    <div class="card-meta">
+                        <span><span class="lang-dot dot-js"></span>JavaScript</span>
+                        <span>⭐ 98</span>
+                        <span>Updated 2 days ago</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <a href="#" class="card-title">document-to-pdf-compiler</a>
+                    </div>
+                    <p class="card-desc">Server-side automated layout pipeline compiling direct client images and structured trees directly into print-ready artifacts.</p>
+                    <div class="card-meta">
+                        <span><span class="lang-dot dot-py"></span>Python</span>
+                        <span>⭐ 314</span>
+                        <span>Updated 1 week ago</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section>
+            <h2>Environment & Toolkit</h2>
+            <div class="tech-stack">
+                <span class="tech-tag">HTML5 (Semantic)</span>
+                <span class="tech-tag">CSS3 (Grid/Variables)</span>
+                <span class="tech-tag">ES6+ JavaScript</span>
+                <span class="tech-tag">Git / Workflow Automation</span>
+                <span class="tech-tag">Python Pipeline Automation</span>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Git-Showcase Layout Engine. Built cleanly with standard native web APIs.</p>
+        </footer>
+    </div>
+
+</body>
+</html>
