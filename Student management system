@@ -1,0 +1,336 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILE_NAME "students.dat"
+#define TEMP_FILE "temp.dat"
+
+// Structure to hold student details
+typedef struct {
+    char name[50];
+    int roll;
+    float marks;
+    char grade;
+} Student;
+
+// Function prototypes
+void addStudent();
+void displayStudents();
+void searchStudent();
+void updateStudent();
+void deleteStudent();
+int isRollNumberUnique(int roll);
+char calculateGrade(float marks);
+void clearInputBuffer();
+
+int main() {
+    int choice;
+
+    do {
+        printf("\n======================================================\n");
+        printf("          STUDENT RECORD MANAGEMENT SYSTEM            \n");
+        printf("======================================================\n");
+        printf("  1. Add New Student\n");
+        printf("  2. Display All Students\n");
+        printf("  3. Search Student\n");
+        printf("  4. Update Student Details\n");
+        printf("  5. Delete Student\n");
+        printf("  6. Exit\n");
+        printf("------------------------------------------------------\n");
+        printf("Enter your choice (1-6): ");
+        
+        if (scanf("%d", &choice) != 1) {
+            clearInputBuffer();
+            printf("\n[!] Invalid input. Please enter a number between 1 and 6.\n");
+            continue;
+        }
+
+        switch (choice) {
+            case 1: addStudent(); break;
+            case 2: displayStudents(); break;
+            case 3: searchStudent(); break;
+            case 4: updateStudent(); break;
+            case 5: deleteStudent(); break;
+            case 6: printf("\nExiting program... Goodbye!\n\n"); break;
+            default: printf("\n[!] Invalid choice! Please select an option from 1 to 6.\n");
+        }
+    } while (choice != 6);
+
+    return 0;
+}
+
+// Function to clear the input buffer to prevent infinite loops on invalid input
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+}
+
+// Function to calculate grade based on marks
+char calculateGrade(float marks) {
+    if (marks >= 90) return 'A';
+    if (marks >= 80) return 'B';
+    if (marks >= 70) return 'C';
+    if (marks >= 60) return 'D';
+    if (marks >= 50) return 'E';
+    return 'F';
+}
+
+// Function to check if a roll number already exists
+int isRollNumberUnique(int roll) {
+    FILE *fp = fopen(FILE_NAME, "rb");
+    if (fp == NULL) {
+        return 1; // File doesn't exist, meaning the roll number is unique
+    }
+    
+    Student s;
+    while (fread(&s, sizeof(Student), 1, fp)) {
+        if (s.roll == roll) {
+            fclose(fp);
+            return 0; // Roll number found, not unique
+        }
+    }
+    
+    fclose(fp);
+    return 1; // Roll number not found, unique
+}
+
+// Function to add a new student
+void addStudent() {
+    FILE *fp = fopen(FILE_NAME, "ab"); // Append in binary mode
+    if (fp == NULL) {
+        printf("\n[!] Error opening file for writing!\n");
+        return;
+    }
+    
+    Student s;
+    printf("\n--- Add New Student ---\n");
+    
+    printf("Enter Name: ");
+    clearInputBuffer(); // Clear newline from previous scanf
+    fgets(s.name, sizeof(s.name), stdin);
+    // Remove trailing newline from fgets
+    s.name[strcspn(s.name, "\n")] = 0;
+    
+    printf("Enter Roll Number: ");
+    if (scanf("%d", &s.roll) != 1) {
+        printf("\n[!] Invalid input for roll number!\n");
+        clearInputBuffer();
+        fclose(fp);
+        return;
+    }
+    
+    if (!isRollNumberUnique(s.roll)) {
+        printf("\n[!] Error: A student with Roll Number %d already exists!\n", s.roll);
+        fclose(fp);
+        return;
+    }
+
+    printf("Enter Marks (0-100): ");
+    if (scanf("%f", &s.marks) != 1) {
+        printf("\n[!] Invalid input for marks!\n");
+        clearInputBuffer();
+        fclose(fp);
+        return;
+    }
+    
+    if (s.marks < 0.0 || s.marks > 100.0) {
+        printf("\n[!] Error: Marks must be between 0 and 100.\n");
+        fclose(fp);
+        return;
+    }
+    
+    s.grade = calculateGrade(s.marks);
+    
+    if (fwrite(&s, sizeof(Student), 1, fp) == 1) {
+        printf("\n[*] Student added successfully!\n");
+    } else {
+        printf("\n[!] Error writing data to file.\n");
+    }
+    
+    fclose(fp);
+}
+
+// Function to display all students
+void displayStudents() {
+    FILE *fp = fopen(FILE_NAME, "rb"); // Read in binary mode
+    if (fp == NULL) {
+        printf("\n[!] No records found! The database is empty.\n");
+        return;
+    }
+    
+    Student s;
+    int count = 0;
+    
+    printf("\n=================================================================\n");
+    printf("%-5s | %-25s | %-12s | %-8s | %-5s\n", "S.No", "Name", "Roll Number", "Marks", "Grade");
+    printf("-----------------------------------------------------------------\n");
+    
+    while (fread(&s, sizeof(Student), 1, fp)) {
+        count++;
+        printf("%-5d | %-25s | %-12d | %-8.2f | %-5c\n", count, s.name, s.roll, s.marks, s.grade);
+    }
+    
+    printf("=================================================================\n");
+    
+    if (count == 0) {
+        printf("No records to display.\n");
+    } else {
+        printf("Total matching records: %d\n", count);
+    }
+    
+    fclose(fp);
+}
+
+// Function to search for a student by roll number
+void searchStudent() {
+    int roll;
+    printf("\nEnter Roll Number to search: ");
+    if (scanf("%d", &roll) != 1) {
+        printf("\n[!] Invalid input!\n");
+        clearInputBuffer();
+        return;
+    }
+
+    FILE *fp = fopen(FILE_NAME, "rb");
+    if (fp == NULL) {
+        printf("\n[!] No records found! The database is empty.\n");
+        return;
+    }
+    
+    Student s;
+    int found = 0;
+    
+    while (fread(&s, sizeof(Student), 1, fp)) {
+        if (s.roll == roll) {
+            printf("\n--- Student Found ---\n");
+            printf("Name        : %s\n", s.name);
+            printf("Roll Number : %d\n", s.roll);
+            printf("Marks       : %.2f\n", s.marks);
+            printf("Grade       : %c\n", s.grade);
+            found = 1;
+            break;
+        }
+    }
+    
+    if (!found) {
+        printf("\n[!] Student with Roll Number %d not found.\n", roll);
+    }
+    
+    fclose(fp);
+}
+
+// Function to update an existing student's details
+void updateStudent() {
+    int roll;
+    printf("\nEnter Roll Number to update: ");
+    if (scanf("%d", &roll) != 1) {
+        printf("\n[!] Invalid input!\n");
+        clearInputBuffer();
+        return;
+    }
+
+    FILE *fp = fopen(FILE_NAME, "rb+"); // Read and write in binary mode
+    if (fp == NULL) {
+        printf("\n[!] No records found! The database is empty.\n");
+        return;
+    }
+    
+    Student s;
+    int found = 0;
+    
+    while (fread(&s, sizeof(Student), 1, fp)) {
+        if (s.roll == roll) {
+            found = 1;
+            printf("\n--- Current Details ---\n");
+            printf("Name  : %s\n", s.name);
+            printf("Marks : %.2f\n", s.marks);
+            
+            printf("\n--- Enter New Details ---\n");
+            
+            printf("Enter New Name: ");
+            clearInputBuffer();
+            fgets(s.name, sizeof(s.name), stdin);
+            s.name[strcspn(s.name, "\n")] = 0;
+            
+            printf("Enter New Marks (0-100): ");
+            if (scanf("%f", &s.marks) != 1) {
+                printf("\n[!] Invalid input for marks! Update failed.\n");
+                fclose(fp);
+                return;
+            }
+            
+            if (s.marks < 0.0 || s.marks > 100.0) {
+                printf("\n[!] Error: Marks must be between 0 and 100. Update failed.\n");
+                fclose(fp);
+                return;
+            }
+            
+            s.grade = calculateGrade(s.marks);
+            
+            // Move file pointer back by one student record size to overwrite
+            fseek(fp, -sizeof(Student), SEEK_CUR);
+            
+            if (fwrite(&s, sizeof(Student), 1, fp) == 1) {
+                printf("\n[*] Student details updated successfully!\n");
+            } else {
+                printf("\n[!] Error updating data.\n");
+            }
+            break;
+        }
+    }
+    
+    if (!found) {
+        printf("\n[!] Student with Roll Number %d not found.\n", roll);
+    }
+    
+    fclose(fp);
+}
+
+// Function to delete a student record
+void deleteStudent() {
+    int roll;
+    printf("\nEnter Roll Number to delete: ");
+    if (scanf("%d", &roll) != 1) {
+        printf("\n[!] Invalid input!\n");
+        clearInputBuffer();
+        return;
+    }
+
+    FILE *fp = fopen(FILE_NAME, "rb");
+    if (fp == NULL) {
+        printf("\n[!] No records found! The database is empty.\n");
+        return;
+    }
+    
+    FILE *temp = fopen(TEMP_FILE, "wb");
+    if (temp == NULL) {
+        printf("\n[!] Error creating temporary file!\n");
+        fclose(fp);
+        return;
+    }
+    
+    Student s;
+    int found = 0;
+    
+    // Copy all records except the one to be deleted to a temporary file
+    while (fread(&s, sizeof(Student), 1, fp)) {
+        if (s.roll == roll) {
+            found = 1;
+        } else {
+            fwrite(&s, sizeof(Student), 1, temp);
+        }
+    }
+    
+    fclose(fp);
+    fclose(temp);
+    
+    if (found) {
+        // Replace original file with temporary file
+        remove(FILE_NAME);
+        rename(TEMP_FILE, FILE_NAME);
+        printf("\n[*] Student record deleted successfully!\n");
+    } else {
+        remove(TEMP_FILE); // Discard temporary file if record not found
+        printf("\n[!] Student with Roll Number %d not found.\n", roll);
+    }
+}
